@@ -1,0 +1,1 @@
+// This is the screen where the user enters the room code and gets redirected to the game screen.

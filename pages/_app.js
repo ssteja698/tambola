@@ -1,12 +1,15 @@
 import Layout from "@components/_App/Layout";
 import React from "react";
+import { Provider } from "react-redux";
 import "../styles/globals.scss";
 
-function MyApp({ Component, pageProps }) {
+function MyApp({ Component, store, pageProps, isServer }) {
   return (
-    <Layout {...pageProps}>
-      <Component {...pageProps} />
-    </Layout>
+    <Provider store={store}>
+      <Layout {...pageProps}>
+        <Component {...pageProps} isServer={isServer} />
+      </Layout>
+    </Provider>
   );
 }
 
