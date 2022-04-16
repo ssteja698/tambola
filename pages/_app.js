@@ -5,11 +5,11 @@ import "../styles/globals.scss";
 
 function MyApp({ Component, store, pageProps }) {
   return (
-    <Provider store={store}>
-      <Layout {...pageProps}>
-        <Component {...pageProps} />
-      </Layout>
-    </Provider>
+    // <Provider store={store}>
+    <Layout {...pageProps}>
+      <Component {...pageProps} />
+    </Layout>
+    // </Provider>
   );
 }
 
