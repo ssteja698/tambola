@@ -3,13 +3,13 @@ import React from "react";
 import { Provider } from "react-redux";
 import "../styles/globals.scss";
 
-function MyApp({ Component, store, pageProps, isServer }) {
+function MyApp({ Component, store, pageProps }) {
   return (
-    <Provider store={store}>
-      <Layout {...pageProps}>
-        <Component {...pageProps} isServer={isServer} />
-      </Layout>
-    </Provider>
+    // <Provider store={store}>
+    <Layout {...pageProps}>
+      <Component {...pageProps} />
+    </Layout>
+    // </Provider>
   );
 }
 
