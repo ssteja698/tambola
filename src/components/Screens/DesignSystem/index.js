@@ -1,5 +1,6 @@
 import React from "react";
 import Avatar from "src/designSystem/Avatar/Index";
+import Button from "src/designSystem/Button";
 
 function DesignSystemScreen() {
   const avatarProps = {
@@ -8,9 +9,10 @@ function DesignSystemScreen() {
     showSingleLetter: true,
   };
   return (
-    <div>
+    <>
       <Avatar {...avatarProps} />
-    </div>
+      <Button {...avatarProps} />
+    </>
   );
 }
 
