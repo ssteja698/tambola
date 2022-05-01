@@ -1,6 +1,9 @@
 import Layout from "@components/_App/Layout";
 import React from "react";
 import { Provider } from "react-redux";
+import withRedux from "next-redux-wrapper";
+
+import createStore from "../src/redux/configureStore";
 import "../styles/globals.scss";
 
 function MyApp({ Component, store, pageProps }) {
@@ -13,4 +16,4 @@ function MyApp({ Component, store, pageProps }) {
   );
 }
 
-export default MyApp;
+export default withRedux(createStore)(MyApp);

@@ -2,7 +2,7 @@ import { call, takeLatest } from "redux-saga/effects";
 import { REQUEST } from "../actionCreator";
 import {
   registerNewUser
-} from "@utils/services/user";
+} from "../../services/user";
 import {
   REGISTER_NEW_USER_ACTION,
 } from "./types";
