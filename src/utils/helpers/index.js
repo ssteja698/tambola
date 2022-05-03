@@ -134,23 +134,7 @@ export const removeAuthCookie = () => {
     for (let value of Object.values(USER_TOKEN_KEYS)) cookieRemove(value);
 };
 
-export const ParseEnigma = (str = "", classN = "") => {
-    try {
-        const finalStr = str.replace(
-            /\{(\w|\'|[a-zA-Z]|[0-9]|\s|\_|\*|\!)+\}/gi,
-            (x) => {
-                let newText = x.replace(/[{}]/gi, "");
-                return `<span class="${classN}">${newText}</span>`;
-            }
-        );
-        return finalStr;
-    } catch (e) {
-        return str;
-    }
-};
-
 export const logout = () => {
     removeAuthCookie();
-    REMOVE_MARKETPLACE_AUTH();
     Router.push("/");
 };

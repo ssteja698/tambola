@@ -1,14 +1,3 @@
-export const USER_STATUS = {
-    USER_NOT_REGISTERED: "USER_NOT_REGISTERED",
-    USER_NOT_VERIFIED: "USER_NOT_VERIFIED"
-}
-
-export const PHONE_STATUS = {
-    PHONE_DOES_NOT_EXIST: "PHONE_DOES_NOT_EXIST",
-    PHONE_NOT_VERIFIED: "PHONE_NOT_VERIFIED",
-    PHONE_VERIFIED: "PHONE_VERIFIED"
-}
-
 export const USER_TOKEN_KEYS = {
     TOKEN: "tk",
     REFRESH_TOKEN: "rtk",
@@ -17,5 +6,3 @@ export const USER_TOKEN_KEYS = {
     PROFILE_SESSION_ID: "psid",
     VERIFICATION_TOKEN: "vtk"
 };
-
-export const marketPlaceTokenKey = "mktptk";
