@@ -27,7 +27,7 @@ function DesignSystemScreen() {
           outlined
         />
       </Card>
-      <Card title={"card"} width={200}>
+      <Card title={"card"}>
         <Card title={"This is Title"} width={200}>
           this is content!!
         </Card>
