@@ -1,10 +1,10 @@
 import React from "react";
-import Avatar from "../../src/components/Screens/DesignSystem";
+import Design from "../../src/components/Screens/DesignSystem";
 
 function DesignSystem() {
   return (
     <div>
-      <Avatar />
+      <Design />
     </div>
   );
 }

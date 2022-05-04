@@ -23,6 +23,7 @@ function Avatar({
           align-items: center;
           font-size: ${size / 2.7}px;
           color: #fff;
+          position: relative !important;
           text-transform: uppercase;
         }
       `}</style>
