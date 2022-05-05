@@ -2,8 +2,14 @@
   "compilerOptions": {
     "baseUrl": ".",
     "paths": {
-      "@components/*": ["./src/components/*"],
       "@constants/*": ["./src/constants/*"],
+      "@helpers/*": ["./src/utils/helpers/*"],
+      "@utils/*": ["./src/utils/*"],
+      "@components/*": ["./src/components/*"],
+      "@screens/*": ["./src/components/screens/*"],
+      "@redux/*": ["./src/redux/*"],
+      "@css/*": ["./src/css/*"],
+      "@config/*": ["./src/config/*"],
       "@designSystem/*": ["./src/designSystem/*"]
     }
   }
