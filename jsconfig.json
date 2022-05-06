@@ -9,7 +9,8 @@
       "@screens/*": ["./src/components/screens/*"],
       "@redux/*": ["./src/redux/*"],
       "@css/*": ["./src/css/*"],
-      "@config/*": ["./src/config/*"]
+      "@config/*": ["./src/config/*"],
+      "@designSystem/*": ["./src/designSystem/*"]
     }
   }
 }
