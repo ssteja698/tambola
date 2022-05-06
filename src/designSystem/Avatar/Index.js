@@ -33,7 +33,7 @@ function Avatar({
 
 Avatar.propTypes = {
   text: PropTypes.string,
-  size: PropTypes.string,
+  size: PropTypes.number,
   color: PropTypes.string,
   showSingleLetter: PropTypes.bool,
 };
