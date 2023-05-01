@@ -1,15 +1,69 @@
-import React from "react";
+import React, { useState } from "react";
+import OtpInput from "react-otp-input";
+import { useRouter } from "next/router";
 import styles from "../styles/Home.module.scss";
 
-export default function Home() {
+const Home = () => {
+  const router = useRouter();
+  const [userName, setUserName] = useState("");
+  const [roomCode, setRoomCode] = useState("");
+
   return (
-    // This is the landing screen. It asks the user to either join the existing room or create a new one.
-    // ToDo: Find a way to create a new room and redirect to the game screen. This is some new stuff.
-    <div className={styles.container}>
-      {/* Show a button which says Join the room and when clicked takes to a page where user enters the code and goes into the page */}
-      <button className={styles.button}>Join the room</button>
-      {/* Show a button which says Create a new room and when clicked takes to a page where user enters the code and goes into the page */}
-      <button className={styles.button}>Create a new room</button>
+    <div
+      className={styles.container}
+      onKeyDown={(e) => {
+        if (!userName || isNaN(roomCode) || roomCode.length < 6) {
+          return;
+        }
+        if (e.code === "Enter") {
+          router.push(`/gamePage?userName=${userName}&roomCode=${roomCode}`);
+        }
+      }}
+    >
+      <div className={styles.formContainer}>
+        <h1>Tambola</h1>
+
+        <div className="w-100">
+          <div>Username</div>
+          <input
+            className="mt-2 w-100"
+            value={userName}
+            onChange={(e) => setUserName(e.target.value)}
+          />
+        </div>
+
+        <div className="w-100">
+          <div className="mb-2">Room Code</div>
+          <OtpInput
+            value={roomCode}
+            onChange={setRoomCode}
+            numInputs={6}
+            inputType="number"
+            shouldAutoFocus
+            renderSeparator={<span className="px-1"></span>}
+            renderInput={(props) => (
+              <input {...props} style={{ width: "100%" }} />
+            )}
+          />
+        </div>
+
+        <button
+          className={`btn ${
+            !isNaN(roomCode) && roomCode.length === 6
+              ? "btn-primary"
+              : "btn-secondary"
+          }`}
+          disabled={!userName || isNaN(roomCode) || roomCode.length < 6}
+          style={{ width: "100%" }}
+          onClick={() =>
+            router.push(`/gamePage?userName=${userName}&roomCode=${roomCode}`)
+          }
+        >
+          Enter Room
+        </button>
+      </div>
     </div>
   );
-}
+};
+
+export default Home;

@@ -1,5 +1,6 @@
 import Layout from "@components/_App/Layout";
 import React from "react";
+import PropTypes from "prop-types";
 import { Provider } from "react-redux";
 
 import createStore from "../src/redux/configureStore";
@@ -15,5 +16,10 @@ function MyApp({ Component, pageProps }) {
     </Provider>
   );
 }
+
+MyApp.propTypes = {
+  Component: PropTypes.func,
+  pageProps: PropTypes.any,
+};
 
 export default MyApp;
