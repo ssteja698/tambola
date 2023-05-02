@@ -14,8 +14,10 @@ import StartGameModal from "src/common/modals/StartGameModal";
 import UserNameModal from "src/common/modals/UserNameModal";
 import "../../styles/GamePage.module.scss";
 import { generateTambolaTicket } from "@utils/index";
+import { getDeviceType } from "@helpers/index";
+import BottomBar from "@designSystem/BottomBar";
 
-const COUNTDOWN_TIME = 4;
+const COUNTDOWN_TIME = 7;
 const MAX_NUMBERS_IN_TICKET = 15;
 
 const items = Array(90)
@@ -70,35 +72,44 @@ const renderUserList = (users) => {
   );
 };
 
-const renderReward = (reward) => {
+const renderReward = (reward, isMobile) => {
   return (
     <div
       style={{
         color: "#00bfff",
         border: "1px solid #00bfff",
+        fontSize: isMobile ? "14px" : "18px",
       }}
-      className="p-2 rounded-3"
+      className={`rounded-3 ${isMobile ? "p-1" : "p-2"}`}
     >
       {reward}
     </div>
   );
 };
 
-const renderRemainingRewards = (remainingRewards) => {
+const renderRemainingRewards = (remainingRewards, isMobile = false) => {
   return (
-    <div>
-      <div style={{ fontSize: "1.5rem" }}>Remaining Rewards</div>
+    <div className={isMobile ? "d-flex flex-column align-items-center" : ""}>
       <div
-        className="mt-2 mb-4 d-flex container"
+        style={{
+          fontSize: isMobile ? "18px" : "1.5rem",
+          textDecoration: isMobile ? "underline" : "auto",
+        }}
+      >
+        Remaining Rewards
+      </div>
+      <div
+        className={`mt-2 d-flex container ${isMobile ? "mb-3" : "mb-4"}`}
         style={{
           flexWrap: "wrap",
           gap: "0.5rem",
           padding: 0,
           whiteSpace: "nowrap",
+          justifyContent: isMobile ? "space-evenly" : "flex-start",
         }}
       >
         {remainingRewards.map((reward) => (
-          <div key={reward}>{renderReward(reward)}</div>
+          <div key={reward}>{renderReward(reward, isMobile)}</div>
         ))}
       </div>
     </div>
@@ -108,6 +119,8 @@ const renderRemainingRewards = (remainingRewards) => {
 const GamePage = () => {
   const [users, setUsers] = useState([]);
   const [domLoaded, setDomLoaded] = useState(false);
+  const deviceType = getDeviceType();
+  const isMobile = deviceType !== "desktop";
 
   const {
     gameDetails: {
@@ -364,23 +377,28 @@ const GamePage = () => {
   };
 
   const renderTicket = () => {
+    const size = isMobile ? "35px" : "50px";
     return (
       <table
-        style={{ border: "0.5px solid black !important", width: "fit-content" }}
+        style={{
+          border: "0.5px solid black !important",
+          width: "fit-content",
+          marginBottom: isMobile ? "0.5rem" : "1rem",
+        }}
         className="table"
       >
         <tbody>
           {Array(3)
             .fill(0)
             .map((_, i) => (
-              <tr className="d-flex" style={{ height: "50px" }} key={i}>
+              <tr className="d-flex" style={{ height: size }} key={i}>
                 {Array(9)
                   .fill(0)
                   .map((_, j) => (
                     <td
                       className="d-flex justify-content-center align-items-center"
                       style={{
-                        width: "50px",
+                        width: size,
                         cursor: "pointer",
                         fontWeight: "bolder",
                         backgroundColor:
@@ -408,6 +426,150 @@ const GamePage = () => {
     !remainingRewards.length ||
     !items.length ||
     items.length === numbersAlreadyDone.length;
+
+  if (isMobile) {
+    return (
+      <>
+        {domLoaded && (
+          <>
+            <div className="d-flex flex-column align-items-center">
+              <h1
+                className="px-3 pt-2"
+                style={{
+                  width: "fit-content",
+                  color: "#660066",
+                  fontFamily: "cursive",
+                }}
+              >
+                Tambola
+              </h1>
+              <div className="d-flex flex-column align-items-center">
+                <div
+                  className="d-flex align-items-center"
+                  style={{ fontSize: "18px" }}
+                >
+                  <div className="me-1">The Number is</div>
+                  <div
+                    style={{
+                      borderRadius: "50%",
+                      border: "1px solid black",
+                      width: "30px",
+                      height: "30px",
+                      textAlign: "center",
+                      alignItems: "center",
+                      fontFamily: "Rubik, sans-serif",
+                    }}
+                  >
+                    {number || 90}
+                  </div>
+                </div>
+                <div
+                  style={{
+                    fontSize: "12px",
+                  }}
+                >
+                  {`Next number in ${COUNTDOWN_TIME} second${
+                    COUNTDOWN_TIME === 1 ? "" : "s"
+                  }`}
+                </div>
+              </div>
+              <div className="d-flex flex-column align-items-center mt-5">
+                <div>{renderTicket()}</div>
+                <button
+                  style={{
+                    width: "fit-content",
+                    cursor: disableClaimBtn ? "auto" : "pointer",
+                    fontSize: "16px",
+                  }}
+                  className={`${
+                    disableClaimBtn ? "bg-secondary" : "bg-primary"
+                  } text-white rounded-2 py-1 px-2 mt-1`}
+                  onClick={() => setShowConfirmationModal(true)}
+                  disabled={disableClaimBtn}
+                >
+                  {!remainingRewards.length ||
+                  !items.length ||
+                  items.length === numbersAlreadyDone.length
+                    ? "Game Over"
+                    : "Claim"}
+                </button>
+              </div>
+              <div
+                className="d-flex flex-column align-items-center mt-5"
+                style={{
+                  border: "1px solid gray",
+                  borderRadius: "4px",
+                  width: "80%",
+                  padding: "0.5rem 1rem 0",
+                }}
+              >
+                {renderRemainingRewards(remainingRewards, true)}
+              </div>
+              <BottomBar
+                title={
+                  <div className="position-sticky top-0 mb-2 px-3 py-2">
+                    Other Participants{" "}
+                    <span style={{ fontWeight: "normal" }}>
+                      ({users?.length})
+                    </span>
+                  </div>
+                }
+                content={
+                  <div className="px-3">
+                    {users?.map((user) => userDetails(user))}
+                  </div>
+                }
+                showContent={users.length > 0}
+              />
+            </div>
+            <UserNameModal
+              isOpen={showUserNameModal}
+              onClose={() => setShowUserNameModal(false)}
+              onProceed={(name) => {
+                socket.emit("new-user", name);
+                setShowUserNameModal(false);
+              }}
+            />
+            <StartGameModal
+              isOpen={showStartGameModal}
+              onClose={() => setShowStartGameModal(false)}
+              onProceed={() => setGameStartedByMe(true)}
+            />
+            <ConfirmationModal
+              isOpen={showConfirmationModal}
+              onClose={() => setShowConfirmationModal(false)}
+              onProceed={() => {
+                validateTicket();
+                setShowConfirmationModal(false);
+              }}
+            />
+            <ToastContainer
+              position="top-right"
+              autoClose={3000}
+              hideProgressBar={false}
+              newestOnTop={false}
+              closeOnClick
+              rtl={false}
+              pauseOnFocusLoss
+              draggable
+              pauseOnHover
+              theme="colored"
+            />
+            {resultMessage.length > 0 && resultMessage !== "Boogie" && (
+              <Confetti numberOfPieces={500} />
+            )}
+            <ResultModal
+              {...{
+                isOpen: showResultModal,
+                onProceed: () => setShowResultModal(false),
+                message: resultMessage,
+              }}
+            />
+          </>
+        )}
+      </>
+    );
+  }
 
   return (
     <>
@@ -439,6 +601,7 @@ const GamePage = () => {
                       height: "3.2rem",
                       textAlign: "center",
                       alignItems: "center",
+                      fontFamily: "Rubik, sans-serif",
                     }}
                   >
                     {number}
