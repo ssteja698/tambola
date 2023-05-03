@@ -1,4 +1,9 @@
 import { Server } from "socket.io";
+import http from "http";
+
+const SOCKET_SERVER_URL =
+  process.env.NEXT_PUBLIC_SOCKET_SERVER_URL || "http://localhost:5000";
+const PORT = process.env.NEXT_PUBLIC_SOCKET_SERVER_PORT;
 
 const users = {};
 let number = "";
@@ -18,7 +23,18 @@ const SocketHandler = (req, res) => {
     console.log("Socket is already running");
   } else {
     console.log("Socket is initializing");
-    const io = new Server(res.socket.server);
+    const server = http.createServer((req, res) => {
+      // Do nothing - just for Socket.io to attach itself to
+    });
+    server.listen(PORT, () => {
+      console.log(`socket.io server listening on ${SOCKET_SERVER_URL}`);
+    });
+    const io = new Server(server, {
+      cors: {
+        origin: SOCKET_SERVER_URL,
+        methods: ["GET", "POST"],
+      },
+    });
     res.socket.server.io = io;
 
     io.on("connection", (socket) => {
