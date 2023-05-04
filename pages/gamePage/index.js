@@ -165,6 +165,9 @@ const GamePage = () => {
   }, []);
 
   useEffect(() => {
+    fetch("/api/hello").then((resp) => {
+      console.log(resp, "*169");
+    });
     fetch("/api/socket").then(() => {
       const socket = io();
 
