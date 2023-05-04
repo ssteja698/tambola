@@ -167,7 +167,7 @@ const GamePage = () => {
   useEffect(() => {
     fetch("/api/socket").then(() => {
       const SOCKET_SERVER_URL =
-        process.env.NEXT_PUBLIC_SOCKET_SERVER_URL_WITH_PORT ||
+        process.env.NEXT_PUBLIC_SOCKET_SERVER_URL ||
         `http://localhost:${process.env.NEXT_PUBLIC_SOCKET_SERVER_PORT}`;
       const socket = io(SOCKET_SERVER_URL);
 
