@@ -1,5 +1,5 @@
 import PropTypes from "prop-types";
-import { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import Confetti from "react-confetti";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
