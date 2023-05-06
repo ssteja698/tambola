@@ -13,7 +13,8 @@ const Home = ({ socket, userName, setUserName, roomCode, setRoomCode }) => {
   }, []);
 
   const joinRoom = ({ userName, roomCode }) => {
-    socket.emit("join_room", { username: userName, room: roomCode });
+    // socket.emit("join_room", { username: userName, room: roomCode });
+    // socket.emit("new-user", userName);
     router.push("/gamePage");
   };
 
@@ -21,9 +22,12 @@ const Home = ({ socket, userName, setUserName, roomCode, setRoomCode }) => {
     <div
       className={styles.container}
       onKeyDown={(e) => {
-        if (!userName || isNaN(roomCode) || roomCode.length < 6) {
-          return;
-        }
+        // if (
+        //   !userName
+        //   || isNaN(roomCode) || roomCode.length < 6
+        // ) {
+        //   return;
+        // }
         if (e.code === "Enter") {
           joinRoom({ userName, roomCode });
         }
@@ -32,7 +36,7 @@ const Home = ({ socket, userName, setUserName, roomCode, setRoomCode }) => {
       <div className={styles.formContainer}>
         <h1>Tambola</h1>
 
-        <div className="w-100">
+        {/* <div className="w-100">
           <div>Username</div>
           <input
             id="username-ip"
@@ -45,9 +49,9 @@ const Home = ({ socket, userName, setUserName, roomCode, setRoomCode }) => {
               }
             }}
           />
-        </div>
+        </div> */}
 
-        <div className="w-100">
+        {/* <div className="w-100">
           <div className="mb-2">Room Code</div>
           <OtpInput
             value={roomCode}
@@ -60,19 +64,24 @@ const Home = ({ socket, userName, setUserName, roomCode, setRoomCode }) => {
               <input {...props} style={{ width: "100%" }} />
             )}
           />
-        </div>
+        </div> */}
 
         <button
           className={`btn ${
-            !isNaN(roomCode) && roomCode.length === 6
-              ? "btn-primary"
-              : "btn-secondary"
+            // !isNaN(roomCode) && roomCode.length === 6
+            //   ?
+            "btn-primary"
+            // : "btn-secondary"
           }`}
-          disabled={!userName || isNaN(roomCode) || roomCode.length < 6}
+          disabled={
+            false
+            // !userName
+            // || isNaN(roomCode) || roomCode.length < 6
+          }
           style={{ width: "100%" }}
           onClick={() => joinRoom({ userName, roomCode })}
         >
-          Enter Room
+          Enter The Game
         </button>
       </div>
     </div>

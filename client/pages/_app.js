@@ -7,7 +7,10 @@ import createStore from "../src/redux/configureStore";
 import "../styles/globals.scss";
 import io from "socket.io-client";
 
-const socket = io.connect("https://tambola-server.vercel.app/");
+const socket = io.connect(
+  // "http://localhost:8000"
+  "https://tambola-server.vercel.app/"
+);
 
 function MyApp({ Component, pageProps }) {
   const [userName, setUserName] = useState("");
