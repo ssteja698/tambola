@@ -3,6 +3,7 @@ import React, { useEffect, useRef, useState } from "react";
 import Confetti from "react-confetti";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import io from "socket.io-client";
 
 import useGameDetails, {
   gameInitialState,
@@ -15,6 +16,11 @@ import ResultModal from "src/common/modals/ResultModal";
 import StartGameModal from "src/common/modals/StartGameModal";
 import UserNameModal from "src/common/modals/UserNameModal";
 import "../../styles/GamePage.module.scss";
+
+const socket = io.connect(
+  "http://localhost:8000"
+  // "https://tambola-server.vercel.app/"
+);
 
 const COUNTDOWN_TIME = 7;
 const MAX_NUMBERS_IN_TICKET = 15;
@@ -71,7 +77,7 @@ const renderRemainingRewards = (remainingRewards, isMobile = false) => {
   );
 };
 
-const GamePage = ({ socket, userName, roomCode }) => {
+const GamePage = ({ userName, roomCode }) => {
   const [domLoaded, setDomLoaded] = useState(false);
   const deviceType = getDeviceType();
   const isMobile = deviceType !== "desktop";
@@ -118,25 +124,31 @@ const GamePage = ({ socket, userName, roomCode }) => {
   }, []);
 
   useEffect(() => {
+    setSocket(socket);
+  }, [socket]);
+
+  useEffect(() => {
     socket.on("connect", () => {
       socket.emit("connected");
     });
 
+    return () => socket.off("connect");
+  }, [socket]);
+
+  useEffect(() => {
     socket.on("get-number", (number, numbersAlreadyDone) => {
       setNumber(number, numbersAlreadyDone);
     });
 
+    return () => socket.off("get-number");
+  }, [socket]);
+
+  useEffect(() => {
     socket.on("get-remaining-rewards", (remainingRewards) => {
       setRemainingRewards(remainingRewards);
     });
 
-    setSocket(socket);
-
-    return () => {
-      socket.off("connect");
-      socket.off("get-number");
-      socket.off("get-remaining-rewards");
-    };
+    return () => socket.off("get-remaining-rewards");
   }, [socket]);
 
   useEffect(() => {
