@@ -41,7 +41,7 @@ const gameDetailsReducer = (state, { type, payload }) => {
   switch (type) {
     case ACTIONS.SET_NUMBER: {
       if (state.gameStartedByMe && payload.number) {
-        state.socket?.emit("set-number", {
+        state.socket?.emit("set_number", {
           newNumber: payload.number,
           room: payload.roomCode,
         });
@@ -95,18 +95,20 @@ const gameDetailsReducer = (state, { type, payload }) => {
       };
     }
     case ACTIONS.SET_RESULT_MESSAGE: {
-      state.socket?.emit("update-users-with-new-result", payload);
+      state.socket?.emit("update_users_with_new_result", payload);
       if (payload !== "Boogie") {
-        state.socket?.emit("set-remaining-rewards", payload);
+        state.socket?.emit("set_remaining_rewards", payload);
       }
       return {
         ...state,
-        resultMessage: payload,
+        resultMessage: payload.resultMessage,
         showResultModal: true,
         remainingRewards:
-          payload === "Boogie"
+          payload.resultMessage === "Boogie"
             ? state.remainingRewards
-            : state.remainingRewards.filter((reward) => reward !== payload),
+            : state.remainingRewards.filter(
+                (reward) => reward !== payload.resultMessage
+              ),
       };
     }
     case ACTIONS.SET_REMAINING_REWARDS: {
@@ -145,7 +147,7 @@ const useGameDetails = ({ initialState }) => {
     });
   }
 
-  function setNumber(number, numbersAlreadyDone, roomCode) {
+  function setNumber({ number, numbersAlreadyDone, roomCode }) {
     dispatch({
       type: ACTIONS.SET_NUMBER,
       payload: { number, numbersAlreadyDone, roomCode },
@@ -180,10 +182,10 @@ const useGameDetails = ({ initialState }) => {
     });
   }
 
-  function setResultMessage(resultMessage, roomCode) {
+  function setResultMessage({ resultMessage, roomCode }) {
     dispatch({
       type: ACTIONS.SET_RESULT_MESSAGE,
-      payload: { resultMessage, roomCode },
+      payload: { result_message: resultMessage, roomCode },
     });
   }
 

@@ -1,23 +1,21 @@
 import PropTypes from "prop-types";
-import React, { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Confetti from "react-confetti";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import io from "socket.io-client";
 
 import useGameDetails, {
   gameInitialState,
 } from "@components/Home/useGameDetails";
+import RoomAndUsers from "@components/Screens/LandingPage/RoomAndUsers";
+import { getDeviceType } from "@helpers/index";
+import { generateTambolaTicket } from "@utils/index";
 import ConfirmationModal from "src/common/modals/ConfirmationModal";
 import ResultModal from "src/common/modals/ResultModal";
 import StartGameModal from "src/common/modals/StartGameModal";
-import UserNameModal from "src/common/modals/UserNameModal";
 import "../../styles/GamePage.module.scss";
-import { generateTambolaTicket } from "@utils/index";
-import { getDeviceType } from "@helpers/index";
-import BottomBar from "@designSystem/BottomBar";
 
-const COUNTDOWN_TIME = 7;
+const COUNTDOWN_TIME = 20;
 const MAX_NUMBERS_IN_TICKET = 15;
 
 const items = Array(90)
@@ -27,54 +25,10 @@ const NUMBERS_COUNT = items.length;
 
 const ticketContent = generateTambolaTicket();
 
-const userDetails = ({ name, resultMessage }) => {
-  return (
-    <div
-      className={`border border-secondary p-2 rounded-3 mb-2 ${
-        resultMessage.length > 0
-          ? resultMessage === "Boogie"
-            ? "text-danger"
-            : "text-success"
-          : ""
-      }`}
-    >
-      <div style={{ fontSize: "1.5rem" }}>{name}</div>
-      {resultMessage.length > 0 && (
-        <div className="mt-1">
-          {resultMessage !== "Boogie" && "Won "}
-          {resultMessage}
-        </div>
-      )}
-    </div>
-  );
-};
-
-const renderUserList = (users) => {
-  return (
-    <div
-      style={{
-        maxHeight: "calc(95vh - 200px)",
-        overflowY: "scroll",
-      }}
-      className="border border-secondary"
-    >
-      <div
-        style={{
-          backgroundColor: "#E8E8E8",
-        }}
-        className="position-sticky top-0 mb-2 px-3 py-2"
-      >
-        Other Participants{" "}
-        <span style={{ fontWeight: "normal" }}>({users?.length})</span>
-      </div>
-      <div className="px-3">{users?.map((user) => userDetails(user))}</div>
-    </div>
-  );
-};
-
 const renderReward = (reward, isMobile) => {
   return (
     <div
+      key={reward}
       style={{
         color: "#00bfff",
         border: "1px solid #00bfff",
@@ -116,8 +70,7 @@ const renderRemainingRewards = (remainingRewards, isMobile = false) => {
   );
 };
 
-const GamePage = () => {
-  const [users, setUsers] = useState([]);
+const GamePage = ({ socket, userName, roomCode }) => {
   const [domLoaded, setDomLoaded] = useState(false);
   const deviceType = getDeviceType();
   const isMobile = deviceType !== "desktop";
@@ -129,11 +82,9 @@ const GamePage = () => {
       number,
       numbersAlreadyDone,
       struckOffNumbers,
-      socket,
       resultMessage,
       isFirstTime,
       showConfirmationModal,
-      showUserNameModal,
       showResultModal,
       remainingRewards,
     },
@@ -143,7 +94,6 @@ const GamePage = () => {
       setNumber,
       setIsFirstTime,
       setShowConfirmationModal,
-      setShowUserNameModal,
       setStruckOffNumbers,
       setSocket,
       setResultMessage,
@@ -165,67 +115,45 @@ const GamePage = () => {
   }, []);
 
   useEffect(() => {
-    fetch("/api/hello").then((resp) => {
-      console.log(resp, "*169");
+    socket.on("connect", () => {
+      socket.emit("connected");
     });
-    fetch("/api/socket").then(() => {
-      const socket = io();
 
-      socket.on("connect", () => {
-        socket.emit("connected");
-      });
-
-      socket.on("get-users", (users) => {
-        setUsers(users);
-      });
-
-      socket.on("get-number", (number, numbersAlreadyDone) => {
-        setNumber(number, numbersAlreadyDone);
-      });
-
-      socket.on("get-remaining-rewards", (remainingRewards) => {
-        setRemainingRewards(remainingRewards);
-      });
-
-      socket.on("set-users-with-new-result", (user) => {
-        setUsers((users) => {
-          const filteredUsers = users.filter((u) => u.id !== user.id);
-          return [user, ...filteredUsers];
-        });
-        if (user.resultMessage === "Boogie") {
-          toast.info(`${user.name}'s claim is a Boogie`);
-        } else {
-          toast.info(`${user.name} won ${user.resultMessage}`);
-        }
-      });
-
-      socket.on("user-connected", (newUser) => {
-        setUsers((users) => [...users, newUser]);
-        toast.info(`${newUser.name} joined the game`);
-      });
-
-      socket.on("user-disconnected", (oldUser) => {
-        setUsers((users) => users.filter((user) => user.id !== oldUser?.id));
-        toast.info(`${oldUser.name} left the game`);
-      });
-
-      setSocket(socket);
+    socket.on("get_number", (number, numbersAlreadyDone) => {
+      setNumber({ number, numbersAlreadyDone, roomCode });
     });
-  }, []);
+
+    socket.on("get_remaining_rewards", (remainingRewards) => {
+      setRemainingRewards(remainingRewards);
+    });
+
+    socket.on("user_started_game", (name) => {
+      toast.info(`${name} has started the game`);
+    });
+
+    setSocket(socket);
+
+    // Remove event listeners on component unmount
+    return () => {
+      socket.off("get_number");
+      socket.off("get_remaining_rewards");
+      socket.off("user_started_game");
+    };
+  }, [socket]);
 
   useEffect(() => {
-    if (!showUserNameModal && !number && isFirstTime) {
+    if (!number && isFirstTime) {
       setShowStartGameModal(true);
       setIsFirstTime(false);
     }
-  }, [showUserNameModal, number, isFirstTime]);
+  }, [number, isFirstTime]);
 
   useEffect(() => {
     if (gameStartedByMe) {
       const newNumber = items[Math.floor(Math.random() * items.length)];
       const newNumberIndex = items.findIndex((item) => item === newNumber);
       items.splice(newNumberIndex, 1);
-      setNumber(newNumber);
+      setNumber({ number: newNumber, roomCode });
       // Danger: Don't try to mess with the below unless you are 100% sure about what you are doing.
       numberTimerRef.current = setInterval(
         () => setCount((prevCount) => prevCount + 1),
@@ -239,7 +167,7 @@ const GamePage = () => {
       const newNumber = items[Math.floor(Math.random() * items.length)];
       const newNumberIndex = items.findIndex((item) => item === newNumber);
       items.splice(newNumberIndex, 1);
-      setNumber(newNumber);
+      setNumber({ number: newNumber, roomCode });
       if (count === NUMBERS_COUNT) {
         clearInterval(numberTimerRef.current);
       }
@@ -306,7 +234,7 @@ const GamePage = () => {
 
   const validateTicket = () => {
     if (struckOffNumbers.indexOf(number) === -1) {
-      setResultMessage("Boogie");
+      setResultMessage({ resultMessage: "Boogie", roomCode });
       return;
     }
 
@@ -317,32 +245,32 @@ const GamePage = () => {
         struckOffNumbers.includes(number)
       );
       if (selectedNumbers.length === 5) {
-        setResultMessage("Quick Five");
+        setResultMessage({ resultMessage: "Quick Five", roomCode });
         return;
       }
     }
 
     // Corners
     if (remainingRewards.indexOf("Corners") > -1 && validateCorners()) {
-      setResultMessage("Corners");
+      setResultMessage({ resultMessage: "Corners", roomCode });
       return;
     }
 
     // First Row
     if (remainingRewards.indexOf("First Row") > -1 && validateRow(0)) {
-      setResultMessage("First Row");
+      setResultMessage({ resultMessage: "First Row", roomCode });
       return;
     }
 
     // Second Row
     if (remainingRewards.indexOf("Second Row") > -1 && validateRow(1)) {
-      setResultMessage("Second Row");
+      setResultMessage({ resultMessage: "Second Row", roomCode });
       return;
     }
 
     // Third Row
     if (remainingRewards.indexOf("Third Row") > -1 && validateRow(2)) {
-      setResultMessage("Third Row");
+      setResultMessage({ resultMessage: "Third Row", roomCode });
       return;
     }
 
@@ -356,15 +284,15 @@ const GamePage = () => {
       );
       if (selectedNumbers.length === MAX_NUMBERS_IN_TICKET) {
         if (remainingRewards.indexOf("First Fullhouse") > -1) {
-          setResultMessage("First Fullhouse");
+          setResultMessage({ resultMessage: "First Fullhouse", roomCode });
         } else if (remainingRewards.indexOf("Second Fullhouse") > -1) {
-          setResultMessage("Second Fullhouse");
+          setResultMessage({ resultMessage: "Second Fullhouse", roomCode });
         }
         return;
       }
     }
 
-    setResultMessage("Boogie");
+    setResultMessage({ resultMessage: "Boogie", roomCode });
   };
 
   const strikeOff = (ticketContent, row, column) => {
@@ -508,35 +436,15 @@ const GamePage = () => {
               >
                 {renderRemainingRewards(remainingRewards, true)}
               </div>
-              <BottomBar
-                title={
-                  <div className="position-sticky top-0 mb-2 px-3 py-2">
-                    Other Participants{" "}
-                    <span style={{ fontWeight: "normal" }}>
-                      ({users?.length})
-                    </span>
-                  </div>
-                }
-                content={
-                  <div className="px-3">
-                    {users?.map((user) => userDetails(user))}
-                  </div>
-                }
-                showContent={users.length > 0}
-              />
+              <RoomAndUsers socket={socket} isMobile={true} />
             </div>
-            <UserNameModal
-              isOpen={showUserNameModal}
-              onClose={() => setShowUserNameModal(false)}
-              onProceed={(name) => {
-                socket.emit("new-user", name);
-                setShowUserNameModal(false);
-              }}
-            />
             <StartGameModal
               isOpen={showStartGameModal}
               onClose={() => setShowStartGameModal(false)}
-              onProceed={() => setGameStartedByMe(true)}
+              onProceed={() => {
+                socket.emit("game_started", { name: userName, room: roomCode });
+                setGameStartedByMe(true);
+              }}
             />
             <ConfirmationModal
               isOpen={showConfirmationModal}
@@ -640,21 +548,16 @@ const GamePage = () => {
             </div>
             <div style={{ width: "33%" }}>
               <div>{renderRemainingRewards(remainingRewards)}</div>
-              <div>{renderUserList(users)}</div>
+              <RoomAndUsers socket={socket} />
             </div>
           </div>
-          <UserNameModal
-            isOpen={showUserNameModal}
-            onClose={() => setShowUserNameModal(false)}
-            onProceed={(name) => {
-              socket.emit("new-user", name);
-              setShowUserNameModal(false);
-            }}
-          />
           <StartGameModal
             isOpen={showStartGameModal}
             onClose={() => setShowStartGameModal(false)}
-            onProceed={() => setGameStartedByMe(true)}
+            onProceed={() => {
+              socket.emit("game_started", { name: userName, room: roomCode });
+              setGameStartedByMe(true);
+            }}
           />
           <ConfirmationModal
             isOpen={showConfirmationModal}
