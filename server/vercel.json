@@ -1,5 +1,20 @@
 {
   "version": 2,
   "builds": [{ "src": "index.js", "use": "@vercel/node" }],
-  "routes": [{ "src": "/(.*)", "dest": "/index.js" }]
+  "routes": [
+    {
+      "src": "/socket\\.io",
+      "dest": "/socket.io",
+      "headers": { "Connection": "Upgrade", "Upgrade": "websocket" },
+      "methods": ["GET", "POST"]
+    },
+    { "src": "/(.*)", "dest": "/index.js" }
+  ],
+  "env": {
+    "NODE_ENV": "production",
+    "PORT": 80
+  },
+  "websockets": {
+    "route": "/socket\\.io"
+  }
 }

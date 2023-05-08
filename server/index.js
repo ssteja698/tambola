@@ -76,8 +76,8 @@ class WebSocketServer {
   }
 
   start() {
-    this.server.listen(8000, () => {
-      console.log("Server is running on port 8000");
+    this.server.listen(process.env.PORT || 8000, () => {
+      console.log(`Server is running on port ${process.env.PORT || 8000}`);
     });
   }
 
