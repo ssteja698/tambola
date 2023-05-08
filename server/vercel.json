@@ -4,17 +4,12 @@
   "routes": [
     {
       "src": "/socket\\.io",
-      "dest": "/socket.io",
-      "headers": { "Connection": "Upgrade", "Upgrade": "websocket" },
-      "methods": ["GET", "POST"]
+      "dest": "/index.js"
     },
     { "src": "/(.*)", "dest": "/index.js" }
   ],
   "env": {
     "NODE_ENV": "production",
     "PORT": 80
-  },
-  "websockets": {
-    "route": "/socket\\.io"
   }
 }
