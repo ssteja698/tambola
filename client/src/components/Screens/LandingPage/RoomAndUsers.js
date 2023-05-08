@@ -56,10 +56,6 @@ const RoomAndUsers = ({ socket, isMobile }) => {
       setUsers(users);
     });
 
-    return () => socket.off("get-users");
-  }, [socket]);
-
-  useEffect(() => {
     socket.on("set-users-with-new-result", (user) => {
       setUsers((users) => {
         const filteredUsers = users.filter((u) => u.id !== user.id);
@@ -72,25 +68,19 @@ const RoomAndUsers = ({ socket, isMobile }) => {
       }
     });
 
-    return () => socket.off("set-users-with-new-result");
-  }, [socket]);
-
-  useEffect(() => {
     socket.on("user-connected", (newUser) => {
       setUsers((users) => [...users, newUser]);
       toast.info(`${newUser?.name} joined the game`);
     });
 
-    return () => socket.off("user-connected");
-  }, [socket]);
-
-  useEffect(() => {
     socket.on("user-disconnected", (oldUser) => {
       setUsers((users) => users.filter((user) => user.id !== oldUser?.id));
       toast.info(`${oldUser?.name} left the game`);
     });
 
-    return () => socket.off("user-disconnected");
+    return () => {
+      socket.disconnect();
+    };
   }, [socket]);
 
   if (isMobile) {

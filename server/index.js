@@ -7,72 +7,87 @@ const { Server } = require("socket.io");
 
 app.use(cors()); // Add cors middleware
 
-const server = http.createServer(app); // Add this
+class WebSocketServer {
+  constructor() {
+    this.users = {};
+    this.number = "";
+    this.numbersAlreadyDone = [];
+    this.rewards = [
+      "Quick Five",
+      "Corners",
+      "First Row",
+      "Second Row",
+      "Third Row",
+      "First Fullhouse",
+      "Second Fullhouse",
+    ];
 
-// Create an io server and allow for CORS from http://localhost:5000 with GET and POST methods
-const io = new Server(server, {
-  cors: {
-    origin: ["http://localhost:5000", "https://tambola-new.vercel.app/"],
-    methods: ["GET", "POST"],
-  },
-});
+    this.server = http.createServer(app);
+    this.io = new Server(this.server, {
+      cors: {
+        origin: ["http://localhost:5000", "https://tambola-new.vercel.app/"],
+        methods: ["GET", "POST"],
+      },
+    });
 
-const users = {};
-let number = "";
-let numbersAlreadyDone = [];
-let rewards = [
-  "Quick Five",
-  "Corners",
-  "First Row",
-  "Second Row",
-  "Third Row",
-  "First Fullhouse",
-  "Second Fullhouse",
-];
+    this.io.on("connection", (socket) => {
+      socket.on("connected", () => {
+        socket.emit("get-users", Object.values(this.users));
+        socket.emit("get-number", this.number, this.numbersAlreadyDone);
+      });
 
-// Listen for when the client connects via socket.io-client
-io.on("connection", (socket) => {
-  socket.on("connected", () => {
-    socket.emit("get-users", Object.values(users));
-    socket.emit("get-number", number, numbersAlreadyDone);
-  });
+      socket.on("new-user", (name) => {
+        this.users[socket.id] = {
+          id: socket.id,
+          name,
+          resultMessage: "",
+        };
+        socket.broadcast.emit("user-connected", this.users[socket.id]);
+      });
 
-  socket.on("new-user", (name) => {
-    users[socket.id] = {
-      id: socket.id,
-      name,
-      resultMessage: "",
-    };
-    socket.broadcast.emit("user-connected", users[socket.id]);
-  });
+      socket.on("game-started", (name) => {
+        socket.broadcast.emit("user-started-game", name);
+      });
 
-  socket.on("game-started", (name) => {
-    socket.broadcast.emit("user-started-game", name);
-  });
+      socket.on("set-number", (newNumber) => {
+        this.number = newNumber;
+        this.numbersAlreadyDone = [...this.numbersAlreadyDone, this.number];
+        socket.broadcast.emit("get-number", this.number);
+      });
 
-  socket.on("set-number", (newNumber) => {
-    number = newNumber;
-    numbersAlreadyDone = [...numbersAlreadyDone, number];
-    socket.broadcast.emit("get-number", number);
-  });
+      socket.on("set-remaining-rewards", (reward) => {
+        this.rewards = this.rewards.filter((r) => r !== reward);
+        socket.broadcast.emit("get-remaining-rewards", this.rewards);
+      });
 
-  socket.on("set-remaining-rewards", (reward) => {
-    rewards = rewards.filter((r) => r !== reward);
-    socket.broadcast.emit("get-remaining-rewards", rewards);
-  });
+      socket.on("update-users-with-new-result", (reward) => {
+        const updatedUser = {
+          ...this.users[socket.id],
+          resultMessage: reward,
+        };
+        socket.broadcast.emit("set-users-with-new-result", updatedUser);
+      });
 
-  socket.on("update-users-with-new-result", (reward) => {
-    const updatedUser = {
-      ...users[socket.id],
-      resultMessage: reward,
-    };
-    socket.broadcast.emit("set-users-with-new-result", updatedUser);
-  });
+      socket.on("disconnect", () => {
+        socket.broadcast.emit("user-disconnected", this.users[socket.id]);
+        delete this.users[socket.id];
+      });
+    });
+  }
 
-  socket.on("disconnect", () => {
-    socket.broadcast.emit("user-disconnected", users[socket.id]);
-    delete users[socket.id];
-  });
-});
+  start() {
+    this.server.listen(8000, () => {
+      console.log("Server is running on port 8000");
+    });
+  }
 
-server.listen(8000, () => "Server is running on port 8000");
+  static getInstance() {
+    if (!WebSocketServer.instance) {
+      WebSocketServer.instance = new WebSocketServer();
+    }
+    return WebSocketServer.instance;
+  }
+}
+
+const webSocketServer = WebSocketServer.getInstance();
+webSocketServer.start();

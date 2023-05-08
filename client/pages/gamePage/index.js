@@ -18,8 +18,8 @@ import UserNameModal from "src/common/modals/UserNameModal";
 import "../../styles/GamePage.module.scss";
 
 const socket = io.connect(
-  "http://localhost:8000"
-  // "https://tambola-server.vercel.app/"
+  // "http://localhost:8000"
+  "https://tambola-server.vercel.app/"
 );
 
 const COUNTDOWN_TIME = 7;
@@ -132,23 +132,17 @@ const GamePage = ({ userName, roomCode }) => {
       socket.emit("connected");
     });
 
-    return () => socket.off("connect");
-  }, [socket]);
-
-  useEffect(() => {
     socket.on("get-number", (number, numbersAlreadyDone) => {
       setNumber(number, numbersAlreadyDone);
     });
 
-    return () => socket.off("get-number");
-  }, [socket]);
-
-  useEffect(() => {
     socket.on("get-remaining-rewards", (remainingRewards) => {
       setRemainingRewards(remainingRewards);
     });
 
-    return () => socket.off("get-remaining-rewards");
+    return () => {
+      socket.disconnect();
+    };
   }, [socket]);
 
   useEffect(() => {
