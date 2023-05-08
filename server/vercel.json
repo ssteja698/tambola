@@ -11,5 +11,6 @@
   "env": {
     "NODE_ENV": "production",
     "PORT": "80"
-  }
+  },
+  "type": "static"
 }

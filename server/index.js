@@ -25,7 +25,7 @@ class WebSocketServer {
     this.server = http.createServer(app);
     this.io = new Server(this.server, {
       cors: {
-        origin: ["http://localhost:5000", "https://tambola-new.vercel.app/"],
+        origin: ["http://localhost:5000", "https://tambola-new.vercel.app"],
         methods: ["GET", "POST"],
       },
     });
