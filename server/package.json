@@ -4,7 +4,9 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "dev": "nodemon index.js"
+    "dev": "nodemon index.js",
+    "build": "echo 'Building the project...' && npm install",
+    "start": "node index.js"
   },
   "author": "",
   "license": "ISC",
