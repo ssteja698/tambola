@@ -32,6 +32,20 @@ class WebSocketServer {
 
     this.io.on("connection", (socket) => {
       socket.on("connected", () => {
+        if (Object.values(this.users).length === 0) {
+          this.users = {};
+          this.number = "";
+          this.numbersAlreadyDone = [];
+          this.rewards = [
+            "Quick Five",
+            "Corners",
+            "First Row",
+            "Second Row",
+            "Third Row",
+            "First Fullhouse",
+            "Second Fullhouse",
+          ];
+        }
         socket.emit("get-users", Object.values(this.users));
         socket.emit("get-number", this.number, this.numbersAlreadyDone);
       });
