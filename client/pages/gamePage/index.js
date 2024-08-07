@@ -17,10 +17,7 @@ import StartGameModal from "src/common/modals/StartGameModal";
 import UserNameModal from "src/common/modals/UserNameModal";
 import "../../styles/GamePage.module.scss";
 
-const socket = io.connect(
-  // "http://localhost:8000"
-  "https://tambola-server.vercel.app/"
-);
+const socket = io.connect("https://tambola-server-jt1z.onrender.com");
 
 const COUNTDOWN_TIME = 7;
 const MAX_NUMBERS_IN_TICKET = 15;
